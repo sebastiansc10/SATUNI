@@ -19,9 +19,41 @@ export function SettingsForm() {
   const { riskCriteria, updateRiskCriteria } = useAppStore();
   const [localCriteria, setLocalCriteria] = useState(riskCriteria);
 
+  const [codigoEstudiante, setCodigoEstudiante] = useState('');
+  const [riesgoCalculado, setRiesgoCalculado] = useState<string | null>(null);
+  const [fichaSubida, setFichaSubida] = useState(false);
+
   const handleSaveCriteria = () => {
     updateRiskCriteria(localCriteria);
     alert('Criterios de riesgo actualizados');
+  };
+
+  const handleSubirFicha = () => {
+    // Simulación de datos del estudiante (esto vendría del backend real)
+    const estudiante = {
+      Codigo: codigoEstudiante,
+      Bikas: 2,
+      Trikas: 1,
+      Promedio: 10.2,
+      CiclosMatriculados: 4,
+      TotalCiclos: 6,
+    };
+
+    const ciclosSinMatricula = estudiante.TotalCiclos - estudiante.CiclosMatriculados;
+
+    let riesgo = 'Bajo';
+    if (estudiante.Trikas >= localCriteria.trikasThreshold) {
+      riesgo = 'Alto';
+    } else if (
+      estudiante.Bikas >= localCriteria.bikasThreshold ||
+      estudiante.Promedio < localCriteria.gpaThreshold ||
+      ciclosSinMatricula >= localCriteria.cyclesWithoutEnrollmentThreshold
+    ) {
+      riesgo = 'Medio';
+    }
+
+    setFichaSubida(true);
+    setRiesgoCalculado(riesgo);
   };
 
   const getRoleBadge = (role: string) => {
@@ -61,7 +93,7 @@ export function SettingsForm() {
                   }))}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Número mínimo de bikas para riesgo medio
+                  Número mínimo de cursos bikas
                 </p>
               </div>
 
@@ -76,7 +108,7 @@ export function SettingsForm() {
                   }))}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Número mínimo de trikas para riesgo alto
+                  Número mínimo de cursos trikas
                 </p>
               </div>
 
@@ -116,6 +148,37 @@ export function SettingsForm() {
               <Save className="h-4 w-4 mr-2" />
               Guardar Criterios
             </Button>
+
+            {/* 🧠 Subir ficha y calcular riesgo */}
+            <Card className="mt-6">
+              <CardContent className="space-y-4">
+                <Label>Subir ficha de intervención</Label>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    placeholder="Código del estudiante"
+                    value={codigoEstudiante}
+                    onChange={(e) => setCodigoEstudiante(e.target.value)}
+                    className="w-[200px]"
+                  />
+                  <Button onClick={handleSubirFicha}>
+                    Subir ficha y calcular riesgo
+                  </Button>
+                </div>
+
+                {fichaSubida && riesgoCalculado && (
+                  <p className="text-sm mt-2">
+                    Riesgo calculado para el estudiante <strong>{codigoEstudiante}</strong>:{" "}
+                    <span className={
+                      riesgoCalculado === 'Alto' ? 'text-red-600 font-bold' :
+                      riesgoCalculado === 'Medio' ? 'text-yellow-600 font-semibold' :
+                      'text-green-600 font-medium'
+                    }>
+                      {riesgoCalculado}
+                    </span>
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
       </TabsContent>

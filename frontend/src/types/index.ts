@@ -9,7 +9,9 @@ export interface Student {
   Bikas: number;
   Trikas: number;
   Promedio: number;
-  UltimaConexion: string; // Dependiendo de cómo manejes las fechas, podrías usar Date en lugar de string
+  UltimaConexion: string; // Puedes usar Date si haces parsing
+  TotalCursos: number;
+  CiclosMatriculados: number;
 }
 
 
@@ -25,18 +27,15 @@ export interface Course {
   status: 'aprobado' | 'bika' | 'trika' | 'retirado';
 }
 
-///export interface Intervention {
-///  id: string;
-///  studentId: string;
-///  studentName: string;
-///  type: 'academica' | 'psicologica' | 'socioeconomica';
- /// channel: 'presencial' | 'telefono' | 'email' | 'whatsapp';
- /// description: string;
-///  status: 'pendiente' | 'en_proceso' | 'concluida';
-///  createdAt: string;
-///  updatedAt: string;
-///  responsiblePerson: string;
-///}///
+export interface Intervention {
+  idEstudiante: number;
+  tipo: string;
+  canal: string;
+  responsable: string;
+  descripcion: string;
+  fecha: string;
+}
+
 
 export interface ActionPlan {
   id: string;
@@ -74,4 +73,31 @@ export interface RiskCriteria {
   trikasThreshold: number;
   cyclesWithoutEnrollmentThreshold: number;
   gpaThreshold: number;
+}
+export interface CursoCritico {
+  curso: string;
+  intentos: {
+    ciclo: string;
+    nota: number;
+  }[];
+}
+
+export interface RendimientoCiclo {
+  ciclo: string;
+  creditos: number;
+  promedio: number;
+}
+
+export interface CursoJalado {
+  nombre: string;
+  codigo: string;
+  ciclo: string;
+  creditos: number;
+  nota: number;
+  intentos: number;
+}
+export interface CursosResumen {
+  bikas: number;
+  trikas: number;
+  sinMatricula: number;
 }

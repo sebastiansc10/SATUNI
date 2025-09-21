@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { useStudents } from '@/features/students/hooks';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface StudentsTableProps {
   search: string;
@@ -7,36 +9,37 @@ interface StudentsTableProps {
   facultyFilter: string;
 }
 
+// 🔍 Función para calcular el nivel de riesgo
+const calcularRiesgo = (student: any): string => {
+  const { IRA, CRAEST, Promedio } = student;
+  if (IRA < 50 || CRAEST < 50 || Promedio < 10) return 'alto';
+  if (IRA < 65 || CRAEST < 65 || Promedio < 12) return 'medio';
+  return 'bajo';
+};
+
+// 🎨 Función para aplicar color según el riesgo
+const getColor = (nivel: string): string => {
+  if (nivel === 'alto') return 'text-red-600 font-bold';
+  if (nivel === 'medio') return 'text-yellow-600 font-semibold';
+  return 'text-green-600 font-medium';
+};
+
 export function StudentsTable({ search, riskFilter, facultyFilter }: StudentsTableProps) {
   const { students, isLoading, error } = useStudents();
 
-  if (isLoading) {
-    return (
-      <div>
-        <p>Cargando estudiantes...</p>
-      </div>
-    );
-  }
+  if (isLoading) return <p>Cargando estudiantes...</p>;
+  if (error) return <p>Error al cargar los estudiantes.</p>;
 
-  if (error) {
-    return (
-      <div>
-        <p>Error al cargar los estudiantes.</p>
-      </div>
-    );
-  }
-
-  // Filtrar estudiantes
   const filteredStudents = students?.filter((student) => {
     const matchesSearch =
-      (student.Nombre?.toLowerCase().includes(search.toLowerCase()) || 
-      student.Codigo?.toLowerCase().includes(search.toLowerCase())) &&
-      !!student.Nombre;  // Asegúrate de que `Nombre` no sea undefined
+      (student.Nombre?.toLowerCase().includes(search.toLowerCase()) ||
+        student.Codigo?.toLowerCase().includes(search.toLowerCase())) &&
+      !!student.Nombre;
 
-    const matchesRisk = riskFilter === 'all' || student.riskLevel === riskFilter;
-    
-    const matchesFaculty = facultyFilter === 'all' || 
-      student.Facultad?.toLowerCase().includes(facultyFilter);  // Asegúrate de que `Facultad` no sea undefined
+    const matchesRisk = riskFilter === 'all' || calcularRiesgo(student) === riskFilter;
+    const matchesFaculty =
+      facultyFilter === 'all' ||
+      student.Facultad?.toLowerCase().includes(facultyFilter);
 
     return matchesSearch && matchesRisk && matchesFaculty;
   }) || [];
@@ -52,6 +55,7 @@ export function StudentsTable({ search, riskFilter, facultyFilter }: StudentsTab
               <TableHead>Facultad</TableHead>
               <TableHead>Ciclo</TableHead>
               <TableHead>Riesgo</TableHead>
+              <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -61,7 +65,16 @@ export function StudentsTable({ search, riskFilter, facultyFilter }: StudentsTab
                 <TableCell>{student.Nombre}</TableCell>
                 <TableCell>{student.Facultad}</TableCell>
                 <TableCell>{student.Ciclo}</TableCell>
-                <TableCell>{student.riskLevel}</TableCell> {/* Asegúrate de que riskLevel esté calculado o definido correctamente */}
+                <TableCell className={getColor(calcularRiesgo(student))}>
+                  {calcularRiesgo(student)}
+                </TableCell>
+                <TableCell>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/students/${student.Id_estudiante}`}>
+                      Ver ficha
+                    </Link>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

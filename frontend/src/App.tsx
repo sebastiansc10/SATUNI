@@ -14,7 +14,7 @@ import ActionPlansPage from "./pages/dashboard/ActionPlansPage";
 import ReportsPage from "./pages/dashboard/ReportsPage";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
-
+import StudentDetailPage from "./pages/StudenteDetailPage"; // ✅ Importado
 
 const queryClient = new QueryClient();
 
@@ -25,13 +25,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Redirect root to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-          
-          {/* Login route */}
           <Route path="/login" element={<LoginPage />} />
-          
-          {/* Protected Dashboard routes */}
+
           <Route 
             path="/dashboard" 
             element={
@@ -49,23 +45,26 @@ const App = () => (
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 
-          {/* Protected Student profile routes */}
+          {/* ✅ Ruta protegida para ficha del estudiante */}
           <Route 
             path="/students/:studentId" 
             element={
               <ProtectedRoute>
+                <StudentDetailPage />
               </ProtectedRoute>
             } 
           />
+
+          {/* 🧪 Ruta protegida para intervención (placeholder temporal) */}
           <Route 
             path="/students/:studentId/intervention" 
             element={
               <ProtectedRoute>
+                <div className="p-6">Intervención académica (pendiente)</div>
               </ProtectedRoute>
             } 
           />
-          
-          {/* Catch-all route */}
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
